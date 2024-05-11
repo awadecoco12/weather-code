@@ -11,7 +11,7 @@ def index():
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Weather Investigator</title>
+        <title>Investigador del clima</title>
         <style>
             body {
                 font-family: Arial, sans-serif;
@@ -69,6 +69,22 @@ def index():
                 margin: 5px 0;
             }
 
+            button2 {
+                padding: 8px 20px;
+                background-color: #ff001e;
+                color: #fff;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 16px;
+            }
+
+            .paragraph {
+                font-size: 25px;
+                line-height: 30;
+                font-family: Arial, sans-serif;
+            }
+
             /* Styling for the video element */
             #rain-video {
                 width: 320px; /* Adjust the width as needed */
@@ -80,11 +96,11 @@ def index():
     </head>
     <body>
         <div class="container">
-            <h1>Weather Investigator</h1>
+            <h1>Investigador del clima</h1>
             <form action="/search" method="post">
-                <label for="city">Enter City:</label>
+                <label for="city">Pon una ciudad:</label>
                 <input type="text" id="city" name="city">
-                <button type="submit">Search</button>
+                <button type="submit">Buscar</button>
             </form>
         </div>
     </body>
@@ -106,8 +122,9 @@ def search_weather():
         # Recommendation based on temperature
         recommendation = ""
         if temperature > 28:
-            recommendation = "Hace mucho calor alla afuera te recomiendo ponerte unos shorts y una camisa de manga corta, Hidratate plis :)"
-
+            recommendation = "Hace calor alla afuera te recomiendo ponerte unos shorts y una camisa de manga corta, Hidratate plis :)"
+        if temperature < 24:
+            recommendation = "Hace bastante frio ponte un pantalon y una camisa manga larga. Hacer ejercicios seria muy bueno"
         return f"""
         <!DOCTYPE html>
         <html lang="en">
@@ -123,10 +140,13 @@ def search_weather():
             <div class="container">
                 <h1>Weather Investigator</h1>
                 <div id="weather-info">
-                    <p>Temperature: {temperature}°C</p>
-                    <p>Humidity: {humidity}%</p>
+                    <p class="paragraph">Temperatura: {temperature}°C</p>
+                    <p>Humedad: {humidity}%</p>
                     <p>Weather: {weather}</p>
                     <p>{recommendation}</p>
+                    <form action="https://awadecoco12.pythonanywhere.com">
+                    <button type="submit"> atras </button>
+                    </form>
                 </div>
             </div>
         </body>
