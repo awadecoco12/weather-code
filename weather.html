@@ -1,147 +1,157 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather Investigator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
+from flask import Flask, render_template, request
+import requests
 
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
+app = Flask(__name__)
 
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        label {
-            font-weight: bold;
-        }
-
-        input[type="text"] {
-            width: calc(100% - 70px);
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        button {
-            padding: 8px 20px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        #weather-info {
-            margin-top: 20px;
-        }
-
-        p {
-            margin: 5px 0;
-        }
-
-        /* Styling for the video element */
-        #rain-video {
-            width: 320px; /* Adjust the width as needed */
-            height: auto; /* Maintain aspect ratio */
-            display: none;
-            margin: 20px auto; /* Center the video element */
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Weather Investigator</h1>
-        <div>
-            <label for="city">Enter City:</label>
-            <input type="text" id="city" name="city">
-            <button onclick="searchWeather()">Search</button>
-        </div>
-
-        <div id="weather-info">
-            <p>Loading...</p>
-        </div>
-
-        <!-- Zone text element -->
-        <p id="zone-info" style="text-align: center; font-size: 18px; font-weight: bold; display: none;">You are in zone: <span id="zone-number"></span></p>
-
-        <!-- Smaller video element -->
-        <video id="rain-video" controls>
-            <source src="arrepientete.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
-    </div>
-
-    <script>
-        const apiKey = 'dc228047b3b16e49df8405cfa85cb7b4';
-
-        function fetchWeatherData(city) {
-            const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
-
-            fetch(apiUrl)
-                .then(response => response.json())
-                .then(data => {
-                    const temperature = data.main.temp;
-                    const humidity = data.main.humidity;
-                    const weather = data.weather[0].main;
-
-                    const weatherInfo = document.getElementById("weather-info");
-                    weatherInfo.innerHTML = `
-                        <p>Temperature: ${temperature}°C</p>
-                        <p>Humidity: ${humidity}%</p>
-                        <p>Weather: ${weather}</p>
-                    `;
-
-                    // Display the video element if temperature is above 25 degrees Celsius
-                    const rainVideo = document.getElementById("rain-video");
-                    const zoneInfo = document.getElementById("zone-info");
-                    const zoneNumber = document.getElementById("zone-number");
-                    
-                    if (temperature > 25) {
-                        rainVideo.style.display = "block";
-                        zoneInfo.style.display = "block";
-                        zoneNumber.textContent = ""; // You can set the zone number here
-                    } else {
-                        rainVideo.style.display = "none";
-                        zoneInfo.style.display = "none";
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching weather data:', error);
-                    const weatherInfo = document.getElementById("weather-info");
-                    weatherInfo.innerHTML = `<p>Failed to fetch weather data. Please try again later.</p>`;
-                });
-        }
-
-        function searchWeather() {
-            const cityInput = document.getElementById("city").value.trim();
-            if (cityInput) {
-                fetchWeatherData(cityInput);
-            } else {
-                alert("Please enter a city name.");
+@app.route('/')
+def index():
+    return """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Weather Investigator</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #f4f4f4;
             }
-        }
-    </script>
-</body>
-</html>
+
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #fff;
+                border-radius: 10px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+
+            h1 {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            label {
+                font-weight: bold;
+            }
+
+            input[type="text"] {
+                width: calc(100% - 70px);
+                padding: 8px;
+                margin-bottom: 10px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                font-size: 16px;
+            }
+
+            button {
+                padding: 8px 20px;
+                background-color: #007bff;
+                color: #fff;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 16px;
+            }
+
+            button:hover {
+                background-color: #0056b3;
+            }
+
+            #weather-info {
+                margin-top: 20px;
+            }
+
+            p {
+                margin: 5px 0;
+            }
+
+            /* Styling for the video element */
+            #rain-video {
+                width: 320px; /* Adjust the width as needed */
+                height: auto; /* Maintain aspect ratio */
+                display: none;
+                margin: 20px auto; /* Center the video element */
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Weather Investigator</h1>
+            <form action="/search" method="post">
+                <label for="city">Enter City:</label>
+                <input type="text" id="city" name="city">
+                <button type="submit">Search</button>
+            </form>
+        </div>
+    </body>
+    </html>
+    """
+
+@app.route('/search', methods=['POST'])
+def search_weather():
+    city = request.form['city']
+    api_key = 'dc228047b3b16e49df8405cfa85cb7b4'
+    api_url = f'https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric'
+    response = requests.get(api_url)
+    if response.status_code == 200:
+        weather_data = response.json()
+        temperature = weather_data['main']['temp']
+        humidity = weather_data['main']['humidity']
+        weather = weather_data['weather'][0]['main']
+
+        # Recommendation based on temperature
+        recommendation = ""
+        if temperature > 28:
+            recommendation = "Hace mucho calor alla afuera te recomiendo ponerte unos shorts y una camisa de manga corta, Hidratate plis :)"
+
+        return f"""
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Weather Investigator</title>
+            <style>
+                /* CSS styles omitted for brevity */
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>Weather Investigator</h1>
+                <div id="weather-info">
+                    <p>Temperature: {temperature}°C</p>
+                    <p>Humidity: {humidity}%</p>
+                    <p>Weather: {weather}</p>
+                    <p>{recommendation}</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+    else:
+        return f"""
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Error</title>
+            <style>
+                /* CSS styles omitted for brevity */
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>Error</h1>
+                <p>Failed to fetch weather data. Please try again later.</p>
+            </div>
+        </body>
+        </html>
+        """
+
+if __name__ == '__main__':
+    app.run(debug=True)
